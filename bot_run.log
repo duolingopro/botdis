@@ -1,0 +1,760 @@
+
+==================================================
+       BÁ VƯƠNG ĐẠI ĐẾ v9.0
+       Đang tải 8 parts...
+       [Tools · Music Player · Slash · Chửi VN]
+==================================================
+
+[1/8] start.py ...
+[2/8] core.py ...
+2026-09-17 19:41:29,253 [INFO] RUN BOT GAY — CORE v7.2 OK (BÁ VƯƠNG AUTO JOB TRACKING + STATS CLEANUP)
+[3/8] roast_vn.py ...
+2026-09-17 19:41:29,257 [INFO] roast_vn.py v2.0 — CHỬI VN CHÍNH GỐC loaded
+[4/8] voice.py ...
+2026-09-17 19:41:29,395 [INFO] VOICE v7.2 OK — play_next FIXED + guard + retry limit
+[5/8] music_player.py ...
+2026-09-17 19:41:29,407 [INFO] music_player.py v1.3 — commands registered
+[6/8] slash.py ...
+2026-09-17 19:41:29,414 [INFO] slash.py v71.1 — AutoRaid mọi nơi, auto-tag + chữ bự
+[slash.py v71.1] loaded — spam vô hạn, auto-tag, chữ bự, everyone/here OK
+[7/8] tools.py ...
+2026-09-17 19:41:29,457 [INFO] Help registered — 16 cats
+2026-09-17 19:41:29,458 [INFO] tools.py v9.4 BLOCK 1/2 — Help + Download + Image + Network loaded
+2026-09-17 19:41:29,515 [INFO] tools.py v9.4 BLOCK 2/2 — Crypto + Util + Fun + Autodel + Tasks + Events loaded
+[8/8] presence.py ...
+
+✅ Đã load 8 parts.
+
+2026-09-17 19:41:29,518 [INFO] BÁ VƯƠNG ĐẠI ĐẾ v9.4 khởi động (TOOLS BÁ VƯƠNG)
+2026-09-17 19:41:29,518 [INFO] UVLOOP=False · ORJSON=False
+2026-09-17 19:41:29,518 [INFO] Gemini: 4 keys · Groq: 3 keys
+2026-09-17 19:41:29,518 [INFO] Owner: 1548930781794144304 · Human: BÁ VƯƠNG ĐẠI ĐẾ
+2026-09-17 19:41:29,518 [INFO] Voice Chat: OK
+2026-09-17 19:41:29,520 [INFO] logging in using static token
+[presence] Đã kết nối Discord Rich Presence.
+2026-09-17 19:41:31,534 [INFO] Shard ID None has connected to Gateway (Session ID: 9266fe8d2488c2c3b042a82aafda4f5c).
+2026-09-17 19:41:33,538 [INFO] Bot ready: CHẶC CHIM#8843
+2026-09-17 19:41:33,538 [INFO] BÁ VƯƠNG ĐẠI ĐẾ v9.4 online (TOOLS BÁ VƯƠNG)
+2026-09-17 19:41:33,543 [INFO] Admins: 1
+2026-09-17 19:41:33,544 [INFO] Users: 1
+2026-09-17 19:41:33,545 [INFO] Custom roast: 0
+2026-09-17 19:41:33,545 [INFO] [TASK] remind_task started
+2026-09-17 19:41:33,545 [INFO] [TASK] cleanup_task started
+2026-09-17 19:41:33,545 [INFO] [TASK] voice_task started
+2026-09-17 19:41:33,545 [INFO] [TASK] health_task started
+2026-09-17 19:41:33,545 [INFO] [TASK] pool_cleanup_task started
+2026-09-17 19:41:33,545 [INFO] [TASK] flush_counters_task started
+2026-09-17 19:41:33,547 [INFO] Gemini: 4/4
+2026-09-17 19:41:33,547 [INFO] Groq: 3/3
+2026-09-17 19:41:33,758 [INFO] Loading Whisper base...
+2026-09-17 19:41:33,958 [INFO] [SLASH] Sync xong (guild=GLOBAL)
+2026-09-17 19:41:33,958 [INFO] Tools Bá Vương ready
+2026-09-17 19:41:34,905 [INFO] HTTP Request: GET https://huggingface.co/api/models/Systran/faster-whisper-base/revision/main "HTTP/1.1 200 OK"
+2026-09-17 19:41:36,518 [INFO] Whisper loaded OK
+[RAID START] ch=1535986949888811030
+[403] channel.send fail → fallback
+[19:46:58] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 4 câu
+[RAID END] tổng 4 câu
+[RAID START] ch=1535986949888811030
+[403] channel.send fail → fallback
+[19:47:16] #1 OK (followup)
+[403] channel.send fail → fallback
+[RAID CANCELLED] sau 2 câu
+[RAID END] tổng 2 câu
+[RAID START] ch=1535986949888811030
+[403] channel.send fail → fallback
+[19:47:19] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 4 câu
+[RAID END] tổng 4 câu
+[RAID START] ch=1535986949888811030
+[403] channel.send fail → fallback
+[19:47:35] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[RAID CANCELLED] sau 3 câu
+[RAID END] tổng 3 câu
+[RAID START] ch=1535986949888811030
+[403] channel.send fail → fallback
+[19:47:42] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[RAID CANCELLED] sau 3 câu
+[RAID END] tổng 3 câu
+[RAID START] ch=1535986949888811030
+[403] channel.send fail → fallback
+[19:47:50] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 4 câu
+[RAID END] tổng 4 câu
+[RAID START] ch=1535986949888811030
+[403] channel.send fail → fallback
+[19:49:22] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 4 câu
+[RAID END] tổng 4 câu
+[RAID START] ch=1535986949888811030
+[403] channel.send fail → fallback
+[19:49:52] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[19:51:23] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 2 câu
+[RAID END] tổng 2 câu
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[19:51:28] #1 OK (followup)
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[RAID CANCELLED] sau 3 câu
+[RAID END] tổng 3 câu
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+2026-09-17 19:51:33,566 [INFO] Gemini: 4/4
+2026-09-17 19:51:33,610 [INFO] Groq: 3/3
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:51:34] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 3 câu
+[RAID END] tổng 3 câu
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[19:51:41] #1 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 3 câu
+[RAID END] tổng 3 câu
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:51:48] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:51:59] #6 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[19:52:11] #11 OK (followup)
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:52:22] #16 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:52:33] #21 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 25 câu
+[RAID END] tổng 25 câu
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[19:53:07] #1 OK (followup)
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[RAID CANCELLED] sau 3 câu
+[RAID END] tổng 3 câu
+[RAID START] ch=1548654378783866961
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:53:15] #1 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 3 câu
+[RAID END] tổng 3 câu
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:53:22] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 3 câu
+[RAID END] tổng 3 câu
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[19:53:29] #1 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 3 câu
+[RAID END] tổng 3 câu
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:53:36] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[RAID CANCELLED] sau 4 câu
+[RAID END] tổng 4 câu
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[19:53:43] #1 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 3 câu
+[RAID END] tổng 3 câu
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[19:53:50] #1 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:54:01] #6 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[19:54:13] #11 OK (followup)
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:54:24] #16 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:54:35] #21 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:54:47] #26 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:54:58] #31 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:55:10] #36 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:55:21] #41 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:55:31] #46 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:55:45] #51 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[19:55:58] #56 OK (followup)
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID CANCELLED] sau 60 câu
+[RAID END] tổng 60 câu
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[19:56:17] #1 OK (followup)
+[RAID CANCELLED] sau 1 câu
+[RAID END] tổng 1 câu
+[RAID START] ch=1548654378783866961
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:56:19] #1 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:56:30] #6 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:56:41] #11 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:56:53] #16 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:57:04] #21 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[19:57:15] #26 OK (followup)
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:57:26] #31 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[19:57:38] #36 OK (followup)
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[19:57:49] #41 OK (followup)
+[ERR fallback 400]
+[403] channel.send fail → fallback
+[403] channel.send fail → fallback
+[ERR fallback 400]
