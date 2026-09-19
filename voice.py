@@ -1,6 +1,7 @@
-# voice.py — PART 3: Voice + Music + VoiceChat + Deobf + Realtime + Admin + Util (v7.2)
-# ✅ FIX v7.2: play_next capture loop, guard disconnect, retry limit
-# ✅ FIX v7.2: Tất cả after callback dùng loop đã capture — KHÔNG crash
+# ============================================================
+# voice_part1.py — Config + Music (SoundCloud Primary) + Voice TTS + VoiceChat
+# v8.1 — NO PROXY, SoundCloud primary, PO Token + Client Spoofing
+# ============================================================
 
 _counter_dirty = False
 
@@ -19,6 +20,557 @@ async def flush_counters_task():
             _counter_dirty = False
         except Exception:
             pass
+
+
+# ============================================================
+# MUSIC — YTDL (v8.1 — SoundCloud Primary + NO PROXY)
+# ✅ PO Token Provider
+# ✅ Client Spoofing (web_embedded, mweb, tv)
+# ✅ Smart Fallback: SoundCloud → YouTube
+# ✅ Auto-update yt-dlp
+# ✅ KHÔNG cần proxy, KHÔNG cần cookie
+# ============================================================
+
+POT_PROVIDER_URL = os.getenv("POT_PROVIDER_URL", "http://127.0.0.1:4416").strip()
+USE_YOUTUBE_FALLBACK = os.getenv("YOUTUBE_FALLBACK", "1") == "1"
+SC_CLIENT_ID = os.getenv("SC_CLIENT_ID", "").strip()
+
+YDL_OPTS = {
+    "format": "bestaudio/best",
+    "noplaylist": True,
+    "nocheckcertificate": True,
+    "ignoreerrors": True,
+    "quiet": True,
+    "no_warnings": True,
+    "default_search": "auto",
+    "source_address": "0.0.0.0",
+    "extract_flat": False,
+    "geo_bypass": True,
+    "no_color": True,
+    "sleep_requests": 1.5,
+    "sleep_interval": 2,
+    "max_sleep_interval": 5,
+    "retries": 5,
+    "fragment_retries": 5,
+    "file_access_retries": 3,
+    "extractor_retries": 3,
+    "http_headers": {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        ),
+        "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Sec-Fetch-Mode": "navigate",
+    },
+    "soundcloud_formats": "http_aac,hls_aac,http_opus,hls_opus,http_mp3",
+    "extractor_args": {
+        "youtubepot-bgutilhttp": {
+            "base_url": [POT_PROVIDER_URL],
+        },
+        "youtube": {
+            "player_client": ["web_embedded", "mweb", "tv"],
+            "player_skip": ["webpage", "configs"],
+        },
+        "soundcloud": {
+            "formats": ["http_aac", "hls_aac", "http_mp3"],
+        },
+    },
+    "remote_components": ["ejs:github"],
+    "logger": None,
+}
+
+if SC_CLIENT_ID:
+    YDL_OPTS["extractor_args"]["soundcloud"] = {
+        "client_id": [SC_CLIENT_ID],
+        "formats": ["http_aac", "hls_aac", "http_mp3"],
+    }
+
+FFMPEG_MUSIC = {
+    "options": "-vn -loglevel quiet",
+    "before_options": (
+        "-reconnect 1 -reconnect_streamed 1 "
+        "-reconnect_delay_max 5 -nostdin"
+    ),
+}
+
+ydl = None
+if YTDL_OK:
+    try:
+        ydl = yt_dlp.YoutubeDL(YDL_OPTS)
+        log.info("[MUSIC] yt-dlp OK — SoundCloud primary + YouTube fallback (NO PROXY)")
+    except Exception as e:
+        log.error("[MUSIC] Không khởi tạo được yt-dlp: %s", e)
+        ydl = None
+
+
+def _auto_update_ytdlp():
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "--upgrade",
+             "--no-cache-dir", "yt-dlp"],
+            capture_output=True, timeout=120, text=True,
+        )
+        if result.returncode == 0:
+            log.info("[MUSIC] yt-dlp updated OK")
+        else:
+            log.warning("[MUSIC] yt-dlp update fail: %s",
+                        result.stderr[-300:] if result.stderr else "?")
+    except Exception as e:
+        log.warning("[MUSIC] yt-dlp auto-update error: %s", e)
+
+
+if YTDL_OK:
+    threading.Thread(target=_auto_update_ytdlp, daemon=True).start()
+
+
+class YTDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, *, data, volume=0.5):
+        super().__init__(source, volume)
+        self.data = data
+        self.title = data.get("title", "unknown")
+        self.duration = data.get("duration", 0)
+        self.thumbnail = data.get("thumbnail", "")
+        self.uploader = data.get("uploader", "")
+        self.webpage_url = data.get("webpage_url", "")
+
+    @classmethod
+    async def from_url(cls, url, stream=True):
+        if not ydl:
+            raise Exception("yt-dlp chưa cài hoặc khởi tạo lỗi")
+        loop = asyncio.get_running_loop()
+
+        def extract():
+            return ydl.extract_info(url, download=not stream)
+
+        data = await loop.run_in_executor(executor, extract)
+        if data is None:
+            raise Exception("không extract được")
+        if "entries" in data:
+            if not data["entries"]:
+                raise Exception("không có entry")
+            data = data["entries"][0]
+
+        fn = data.get("url")
+        if stream and "formats" in data:
+            af = [
+                f for f in data["formats"]
+                if f.get("acodec") not in (None, "none")
+                and f.get("vcodec") in (None, "none")
+            ]
+            if af:
+                af.sort(
+                    key=lambda x: (x.get("abr") or 0, x.get("tbr") or 0),
+                    reverse=True,
+                )
+                fn = af[0].get("url", fn)
+
+        if not fn:
+            raise Exception("không có URL stream")
+
+        return cls(
+            discord.FFmpegPCMAudio(fn, executable=FFMPEG_BIN, **FFMPEG_MUSIC),
+            data=data,
+        )
+
+
+def fmt_dur(sec):
+    if not sec:
+        return "?:??"
+    try:
+        sec = int(sec)
+    except Exception:
+        return "?:??"
+    m, s = divmod(sec, 60)
+    h, m = divmod(m, 60)
+    return f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
+
+
+def _detect_platform(url):
+    u = (url or "").lower()
+    if "soundcloud.com" in u:
+        return "SoundCloud"
+    if "youtube.com" in u or "youtu.be" in u:
+        return "YouTube"
+    return "Unknown"
+
+
+def _try_extract(query):
+    try:
+        return ydl.extract_info(query, download=False)
+    except Exception as e:
+        log.debug("[MUSIC] extract '%s' fail: %s", query[:60], str(e)[:150])
+        return None
+
+
+def _normalize_info(data, original_query):
+    if not data:
+        return None
+    if "entries" in data:
+        entries = data.get("entries") or []
+        if not entries:
+            return None
+        data = entries[0]
+    if not data:
+        return None
+    url = data.get("webpage_url") or data.get("url") or original_query
+    return {
+        "title": data.get("title", "unknown"),
+        "url": url,
+        "duration": data.get("duration", 0),
+        "thumbnail": data.get("thumbnail", ""),
+        "uploader": data.get("uploader", ""),
+        "platform": _detect_platform(url),
+    }
+
+
+def track_info(query, is_url=False):
+    if not ydl:
+        return None
+    if is_url:
+        data = _try_extract(query)
+        return _normalize_info(data, query)
+    data = _try_extract(f"scsearch1:{query}")
+    info = _normalize_info(data, query)
+    if info:
+        return info
+    if USE_YOUTUBE_FALLBACK:
+        log.info("[MUSIC] SoundCloud miss '%s' → fallback YouTube", query)
+        data = _try_extract(f"ytsearch1:{query}")
+        info = _normalize_info(data, query)
+        if info:
+            return info
+    return None
+
+
+async def play_next(guild, vc, _attempt=0):
+    st = mstate(guild.id)
+
+    if _attempt > 3:
+        log.error("play_next: bỏ cuộc sau %d lần retry — clear queue", _attempt)
+        st["current"] = None
+        st["queue"].clear()
+        st["loop_count"] = st["loop_max"] = 0
+        ch = bot.get_channel(st.get("text_channel") or 0)
+        if ch:
+            try:
+                await ch.send("💀 Nhạc gãy liên tục, tao dẹp queue.")
+            except Exception:
+                pass
+        return
+
+    if _attempt == 0:
+        if st["current"] and st["loop_max"] > 0 and st["loop_count"] < st["loop_max"]:
+            st["loop_count"] += 1
+            track = st["current"]
+        elif st["queue"]:
+            track = st["queue"].pop(0)
+            st["current"] = track
+            st["loop_count"] = 0
+            if st["loop_max"] > 0:
+                st["loop_count"] = 1
+        else:
+            st["current"] = None
+            st["loop_count"] = st["loop_max"] = 0
+            try:
+                await vc.disconnect()
+            except Exception:
+                pass
+            return
+    else:
+        track = st["current"]
+        if not track:
+            return
+
+    if not vc or not vc.is_connected():
+        log.warning("play_next: voice client không còn connected")
+        st["current"] = None
+        return
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        log.error("play_next: không lấy được loop")
+        return
+
+    try:
+        player = await YTDLSource.from_url(track["url"], stream=True)
+    except Exception as e:
+        log.error("play_next attempt %d extract fail [%s]: %s",
+                  _attempt, track.get("platform", "?"), str(e)[:200])
+        await asyncio.sleep(1.5)
+        return await play_next(guild, vc, _attempt + 1)
+
+    if not vc.is_connected():
+        log.warning("play_next: vc disconnected trong lúc extract")
+        st["current"] = None
+        return
+
+    try:
+        player.volume = st.get("volume", 0.5)
+    except Exception:
+        pass
+
+    _fired = {"done": False}
+
+    def after(err):
+        if _fired["done"]:
+            return
+        _fired["done"] = True
+        if err:
+            log.error("player error: %s", err)
+        try:
+            if loop and not loop.is_closed() and loop.is_running():
+                asyncio.run_coroutine_threadsafe(
+                    play_next(guild, vc, 0), loop)
+        except Exception as e:
+            log.error("schedule next: %s", e)
+
+    try:
+        vc.play(player, after=after)
+    except Exception as e:
+        log.error("vc.play fail: %s", e)
+        _fired["done"] = True
+        await asyncio.sleep(0.8)
+        return await play_next(guild, vc, _attempt + 1)
+
+    ch = bot.get_channel(st.get("text_channel") or 0)
+    if ch:
+        e = discord.Embed(title="🎵  NHẠC CUNG", color=ROYAL_GOLD)
+        e.add_field(name="⚜️ Khúc", value=player.title[:100], inline=False)
+        e.add_field(name="⏱️ Dài", value=fmt_dur(player.duration), inline=True)
+        e.add_field(name="🔊 Âm", value=f"{int(st['volume']*100)}%", inline=True)
+        platform = track.get("platform", "?")
+        e.add_field(name="🌐 Nguồn", value=f"`{platform}`", inline=True)
+        if player.thumbnail:
+            e.set_thumbnail(url=player.thumbnail)
+        try:
+            await ch.send(embed=e)
+        except Exception:
+            pass
+
+
+@bot.command(name="play", aliases=["p"])
+async def cmd_play(ctx, *, query: str = None):
+    if not is_allowed(ctx.author):
+        await ctx.reply(pick_perm_insult())
+        return
+    if not YTDL_OK:
+        await ctx.reply("Chưa cài yt-dlp.")
+        return
+    if not FFMPEG_BIN:
+        await ctx.reply("Chưa cài ffmpeg.")
+        return
+    if not query:
+        await ctx.reply("Dùng: `!play <tên/link>` hoặc `!play a, b, c`")
+        return
+    if not ctx.author.voice or not ctx.author.voice.channel:
+        await ctx.reply("Vào voice trước.")
+        return
+
+    queries = [q.strip() for q in query.split(",") if q.strip()]
+    target = ctx.author.voice.channel
+    vc = ctx.voice_client
+
+    async with ctx.typing():
+        try:
+            if vc and vc.is_connected():
+                if vc.channel != target:
+                    await vc.move_to(target)
+            else:
+                vc = await target.connect()
+
+            st = mstate(ctx.guild.id)
+            st["text_channel"] = ctx.channel.id
+            loop = asyncio.get_running_loop()
+            added = 0
+            sc_count = 0
+            yt_count = 0
+
+            for q in queries[:20]:
+                is_url = q.startswith("http")
+                try:
+                    info = await loop.run_in_executor(
+                        executor,
+                        lambda qq=q, uu=is_url: track_info(qq, uu),
+                    )
+                except Exception as e:
+                    log.error("play extract: %s", e)
+                    continue
+                if not info:
+                    continue
+                st["queue"].append({**info, "requester": ctx.author.display_name})
+                added += 1
+                if info.get("platform") == "SoundCloud":
+                    sc_count += 1
+                elif info.get("platform") == "YouTube":
+                    yt_count += 1
+
+            if added == 0:
+                await ctx.reply("Không tìm thấy bài nào (SoundCloud + YouTube).")
+                return
+
+            msg = f"Thêm {added} bài vào queue."
+            if sc_count or yt_count:
+                parts = []
+                if sc_count:
+                    parts.append(f"☁️ {sc_count} SoundCloud")
+                if yt_count:
+                    parts.append(f"▶️ {yt_count} YouTube")
+                msg += f" ({' · '.join(parts)})"
+
+            if vc.is_playing() or vc.is_paused():
+                await ctx.send(msg)
+            else:
+                await ctx.send(msg + " Bắt đầu phát.")
+                await play_next(ctx.guild, vc)
+
+        except Exception as e:
+            log.error("cmd_play: %s", e)
+            await ctx.reply(f"Lỗi: {str(e)[:150]}")
+
+
+@bot.command(name="queue", aliases=["q"])
+async def cmd_queue(ctx):
+    if not is_allowed(ctx.author):
+        await ctx.reply(pick_perm_insult())
+        return
+    if not ctx.guild:
+        return
+    st = mstate(ctx.guild.id)
+    if not st["queue"] and not st["current"]:
+        await ctx.reply("Queue rỗng.")
+        return
+    e = discord.Embed(title="🎵  QUEUE", color=ROYAL_GOLD)
+    if st["current"]:
+        p = st["current"].get("platform", "?")
+        e.add_field(
+            name="Đang phát",
+            value=f"{st['current']['title'][:80]} · `{p}`",
+            inline=False,
+        )
+    if st["queue"]:
+        lines = []
+        for i, t in enumerate(st["queue"][:15], 1):
+            p = t.get("platform", "?")
+            lines.append(f"{i}. [{p}] {t['title'][:70]}")
+        e.add_field(
+            name=f"Tiếp ({len(st['queue'])})",
+            value="\n".join(lines),
+            inline=False,
+        )
+    await ctx.send(embed=e)
+
+
+@bot.command(name="skip")
+async def cmd_skip(ctx):
+    if not is_allowed(ctx.author):
+        await ctx.reply(pick_perm_insult())
+        return
+    vc = ctx.voice_client
+    if vc and (vc.is_playing() or vc.is_paused()):
+        st = mstate(ctx.guild.id)
+        st["loop_count"] = st["loop_max"] = 0
+        vc.stop()
+        await ctx.message.add_reaction("⏭️")
+    else:
+        await ctx.reply("Không có gì phát.")
+
+
+@bot.command(name="pause")
+async def cmd_pause(ctx):
+    if not is_allowed(ctx.author):
+        await ctx.reply(pick_perm_insult())
+        return
+    vc = ctx.voice_client
+    if vc and vc.is_playing():
+        vc.pause()
+        await ctx.message.add_reaction("⏸️")
+    elif vc and vc.is_paused():
+        vc.resume()
+        await ctx.message.add_reaction("▶️")
+
+
+@bot.command(name="stopmusic")
+async def cmd_stopmusic(ctx):
+    if not is_allowed(ctx.author):
+        await ctx.reply(pick_perm_insult())
+        return
+    vc = ctx.voice_client
+    if vc:
+        st = mstate(ctx.guild.id)
+        st["queue"].clear()
+        st["current"] = None
+        st["loop_count"] = st["loop_max"] = 0
+        vc.stop()
+        await ctx.send("Dừng nhạc.")
+
+
+@bot.command(name="loop")
+async def cmd_loop(ctx, count: int = 3):
+    if not is_allowed(ctx.author):
+        await ctx.reply(pick_perm_insult())
+        return
+    st = mstate(ctx.guild.id)
+    count = max(0, min(50, count))
+    st["loop_count"] = 0
+    st["loop_max"] = count
+    await ctx.send("Tắt loop." if count == 0 else f"Loop {count} lần.")
+
+
+@bot.command(name="nowplaying", aliases=["np"])
+async def cmd_nowplaying(ctx):
+    if not is_allowed(ctx.author):
+        await ctx.reply(pick_perm_insult())
+        return
+    if not ctx.guild:
+        return
+    st = mstate(ctx.guild.id)
+    if not st["current"]:
+        await ctx.reply("Không có gì đang phát.")
+        return
+    t = st["current"]
+    p = t.get("platform", "?")
+    e = discord.Embed(title="🎧  ĐANG PHÁT", color=ROYAL_GOLD)
+    e.add_field(name="Bài", value=t["title"][:100], inline=False)
+    e.add_field(name="Dài", value=fmt_dur(t.get("duration", 0)), inline=True)
+    e.add_field(name="Nguồn", value=f"`{p}`", inline=True)
+    if t.get("thumbnail"):
+        e.set_thumbnail(url=t["thumbnail"])
+    await ctx.send(embed=e)
+
+
+@bot.command(name="volume", aliases=["vol"])
+async def cmd_volume(ctx, value: str = None):
+    if not is_allowed(ctx.author):
+        await ctx.reply(pick_perm_insult())
+        return
+    if not ctx.guild:
+        return
+    st = mstate(ctx.guild.id)
+    if not value:
+        await ctx.reply(f"🔊 Volume: `{int(st.get('volume', 0.5) * 100)}%`")
+        return
+    v = value.lower().strip()
+    try:
+        if v.endswith("x"):
+            vol = float(v.rstrip("x").replace(",", "."))
+        else:
+            n = float(v.replace(",", "").rstrip("%"))
+            vol = n / 100 if n > 3 else n
+        vol = max(0.0, min(3.0, vol))
+    except Exception:
+        await ctx.reply("Số sai. VD: `!volume 1.5` hoặc `!volume 150%`")
+        return
+    st["volume"] = vol
+    vc = ctx.voice_client
+    if vc and vc.source and hasattr(vc.source, "volume"):
+        try:
+            vc.source.volume = vol
+        except Exception:
+            pass
+    await ctx.send(f"🔊 Volume → `{int(vol * 100)}%`")
 
 
 # ============================================================
@@ -176,389 +728,6 @@ async def cmd_leave(ctx):
     if ctx.voice_client:
         await ctx.voice_client.disconnect()
         await ctx.send("Rời voice.")
-
-
-# ============================================================
-# MUSIC — YTDL
-# ============================================================
-YDL_OPTS = {"format": "bestaudio/best", "noplaylist": True, "nocheckcertificate": True,
-            "ignoreerrors": True, "quiet": True, "no_warnings": True,
-            "default_search": "auto", "source_address": "0.0.0.0",
-            "http_headers": {"User-Agent": "Mozilla/5.0"}}
-FFMPEG_MUSIC = {"options": "-vn -loglevel quiet",
-                "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"}
-ydl = yt_dlp.YoutubeDL(YDL_OPTS) if YTDL_OK else None
-
-
-class YTDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, *, data, volume=0.5):
-        super().__init__(source, volume)
-        self.data = data
-        self.title = data.get("title", "unknown")
-        self.duration = data.get("duration", 0)
-        self.thumbnail = data.get("thumbnail", "")
-
-    @classmethod
-    async def from_url(cls, url, stream=True):
-        if not ydl:
-            raise Exception("yt-dlp chưa cài")
-        loop = asyncio.get_running_loop()
-
-        def extract():
-            return ydl.extract_info(url, download=not stream)
-
-        data = await loop.run_in_executor(executor, extract)
-        if data is None:
-            raise Exception("không tải được")
-        if "entries" in data:
-            if not data["entries"]:
-                raise Exception("không tìm thấy")
-            data = data["entries"][0]
-        fn = data.get("url")
-        if stream and "formats" in data:
-            af = [f for f in data["formats"] if f.get("acodec") != "none" and f.get("vcodec") == "none"]
-            if af:
-                fn = af[-1].get("url", fn)
-        return cls(discord.FFmpegPCMAudio(fn, executable=FFMPEG_BIN, **FFMPEG_MUSIC), data=data)
-
-
-def fmt_dur(sec):
-    if not sec:
-        return "?:??"
-    try:
-        sec = int(sec)
-    except Exception:
-        return "?:??"
-    m, s = divmod(sec, 60)
-    h, m = divmod(m, 60)
-    return f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
-
-
-def track_info(query, is_url=False):
-    if not ydl:
-        return None
-
-    def extract():
-        return ydl.extract_info(query if is_url else f"ytsearch1:{query}", download=False)
-
-    try:
-        data = extract()
-    except Exception:
-        return None
-    if data is None:
-        return None
-    if "entries" in data:
-        if not data["entries"]:
-            return None
-        data = data["entries"][0]
-    return {"title": data.get("title", "unknown"),
-            "url": data.get("webpage_url") or data.get("url") or query,
-            "duration": data.get("duration", 0),
-            "thumbnail": data.get("thumbnail", "")}
-
-
-# ============================================================
-# ✅ FIX v7.2: play_next — capture loop, guard, retry
-# ============================================================
-async def play_next(guild, vc, _attempt=0):
-    """
-    - Không block voice thread
-    - Guard is_connected() 2 lần
-    - Retry limit tránh loop vô hạn
-    """
-    st = mstate(guild.id)
-
-    # Bỏ cuộc sau 3 lần retry
-    if _attempt > 3:
-        log.error("play_next: bỏ cuộc sau %d lần retry — clear queue", _attempt)
-        st["current"] = None
-        st["queue"].clear()
-        st["loop_count"] = st["loop_max"] = 0
-        ch = bot.get_channel(st.get("text_channel") or 0)
-        if ch:
-            try:
-                await ch.send("💀 Nhạc gãy liên tục, tao dẹp queue.")
-            except Exception:
-                pass
-        return
-
-    # Chọn track
-    if _attempt == 0:
-        if st["current"] and st["loop_max"] > 0 and st["loop_count"] < st["loop_max"]:
-            st["loop_count"] += 1
-            track = st["current"]
-        elif st["queue"]:
-            track = st["queue"].pop(0)
-            st["current"] = track
-            st["loop_count"] = 0
-            if st["loop_max"] > 0:
-                st["loop_count"] = 1
-        else:
-            st["current"] = None
-            st["loop_count"] = st["loop_max"] = 0
-            try:
-                await vc.disconnect()
-            except Exception:
-                pass
-            return
-    else:
-        track = st["current"]
-        if not track:
-            return
-
-    # Guard voice
-    if not vc or not vc.is_connected():
-        log.warning("play_next: voice client không còn connected")
-        st["current"] = None
-        return
-
-    # ✅ Capture loop 1 lần duy nhất (đang ở async context)
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        log.error("play_next: không lấy được loop")
-        return
-
-    # Extract audio
-    try:
-        player = await YTDLSource.from_url(track["url"], stream=True)
-    except Exception as e:
-        log.error("play_next attempt %d extract fail: %s", _attempt, e)
-        await asyncio.sleep(1.5)
-        return await play_next(guild, vc, _attempt + 1)
-
-    # Guard lần 2 sau extract
-    if not vc.is_connected():
-        log.warning("play_next: vc disconnected trong lúc extract")
-        st["current"] = None
-        return
-
-    try:
-        player.volume = st.get("volume", 0.5)
-    except Exception:
-        pass
-
-    # Flag ngăn after fire 2 lần
-    _fired = {"done": False}
-
-    def after(err):
-        if _fired["done"]:
-            return
-        _fired["done"] = True
-        if err:
-            log.error("player error: %s", err)
-        try:
-            if loop and not loop.is_closed() and loop.is_running():
-                asyncio.run_coroutine_threadsafe(
-                    play_next(guild, vc, 0), loop)
-        except Exception as e:
-            log.error("schedule next: %s", e)
-
-    try:
-        vc.play(player, after=after)
-    except Exception as e:
-        log.error("vc.play fail: %s", e)
-        _fired["done"] = True
-        await asyncio.sleep(0.8)
-        return await play_next(guild, vc, _attempt + 1)
-
-    ch = bot.get_channel(st.get("text_channel") or 0)
-    if ch:
-        e = discord.Embed(title="🎵  NHẠC CUNG", color=ROYAL_GOLD)
-        e.add_field(name="⚜️ Khúc", value=player.title[:100], inline=False)
-        e.add_field(name="⏱️ Dài", value=fmt_dur(player.duration), inline=True)
-        e.add_field(name="🔊 Âm", value=f"{int(st['volume']*100)}%", inline=True)
-        if player.thumbnail:
-            e.set_thumbnail(url=player.thumbnail)
-        try:
-            await ch.send(embed=e)
-        except Exception:
-            pass
-
-
-# ============================================================
-# MUSIC COMMANDS
-# ============================================================
-@bot.command(name="play", aliases=["p"])
-async def cmd_play(ctx, *, query: str = None):
-    if not is_allowed(ctx.author):
-        await ctx.reply(pick_perm_insult())
-        return
-    if not YTDL_OK:
-        await ctx.reply("Chưa cài yt-dlp.")
-        return
-    if not FFMPEG_BIN:
-        await ctx.reply("Chưa cài ffmpeg.")
-        return
-    if not query:
-        await ctx.reply("Dùng: `!play <tên/link>` hoặc `!play a, b, c`")
-        return
-    if not ctx.author.voice or not ctx.author.voice.channel:
-        await ctx.reply("Vào voice trước.")
-        return
-    queries = [q.strip() for q in query.split(",") if q.strip()]
-    target = ctx.author.voice.channel
-    vc = ctx.voice_client
-    async with ctx.typing():
-        try:
-            if vc and vc.is_connected():
-                if vc.channel != target:
-                    await vc.move_to(target)
-            else:
-                vc = await target.connect()
-            st = mstate(ctx.guild.id)
-            st["text_channel"] = ctx.channel.id
-            loop = asyncio.get_running_loop()
-            added = 0
-            for q in queries[:20]:
-                is_url = q.startswith("http")
-                try:
-                    info = await loop.run_in_executor(executor, lambda qq=q, uu=is_url: track_info(qq, uu))
-                except Exception:
-                    continue
-                if not info:
-                    continue
-                st["queue"].append({**info, "requester": ctx.author.display_name})
-                added += 1
-            if added == 0:
-                await ctx.reply("Không tìm thấy bài nào.")
-                return
-            if vc.is_playing() or vc.is_paused():
-                await ctx.send(f"Thêm {added} bài vào queue.")
-            else:
-                await ctx.send(f"Thêm {added} bài, bắt đầu phát.")
-                await play_next(ctx.guild, vc)
-        except Exception as e:
-            log.error("cmd_play: %s", e)
-            await ctx.reply(f"Lỗi: {str(e)[:150]}")
-
-
-@bot.command(name="queue", aliases=["q"])
-async def cmd_queue(ctx):
-    if not is_allowed(ctx.author):
-        await ctx.reply(pick_perm_insult())
-        return
-    if not ctx.guild:
-        return
-    st = mstate(ctx.guild.id)
-    if not st["queue"] and not st["current"]:
-        await ctx.reply("Queue rỗng.")
-        return
-    e = discord.Embed(title="🎵  QUEUE", color=ROYAL_GOLD)
-    if st["current"]:
-        e.add_field(name="Đang phát", value=st["current"]["title"][:80], inline=False)
-    if st["queue"]:
-        lines = [f"{i}. {t['title'][:80]}" for i, t in enumerate(st["queue"][:15], 1)]
-        e.add_field(name=f"Tiếp ({len(st['queue'])})", value="\n".join(lines), inline=False)
-    await ctx.send(embed=e)
-
-
-@bot.command(name="skip")
-async def cmd_skip(ctx):
-    if not is_allowed(ctx.author):
-        await ctx.reply(pick_perm_insult())
-        return
-    vc = ctx.voice_client
-    if vc and (vc.is_playing() or vc.is_paused()):
-        st = mstate(ctx.guild.id)
-        st["loop_count"] = st["loop_max"] = 0
-        vc.stop()
-        await ctx.message.add_reaction("⏭️")
-    else:
-        await ctx.reply("Không có gì phát.")
-
-
-@bot.command(name="pause")
-async def cmd_pause(ctx):
-    if not is_allowed(ctx.author):
-        await ctx.reply(pick_perm_insult())
-        return
-    vc = ctx.voice_client
-    if vc and vc.is_playing():
-        vc.pause()
-        await ctx.message.add_reaction("⏸️")
-    elif vc and vc.is_paused():
-        vc.resume()
-        await ctx.message.add_reaction("▶️")
-
-
-@bot.command(name="stopmusic")
-async def cmd_stopmusic(ctx):
-    if not is_allowed(ctx.author):
-        await ctx.reply(pick_perm_insult())
-        return
-    vc = ctx.voice_client
-    if vc:
-        st = mstate(ctx.guild.id)
-        st["queue"].clear()
-        st["current"] = None
-        st["loop_count"] = st["loop_max"] = 0
-        vc.stop()
-        await ctx.send("Dừng nhạc.")
-
-
-@bot.command(name="loop")
-async def cmd_loop(ctx, count: int = 3):
-    if not is_allowed(ctx.author):
-        await ctx.reply(pick_perm_insult())
-        return
-    st = mstate(ctx.guild.id)
-    count = max(0, min(50, count))
-    st["loop_count"] = 0
-    st["loop_max"] = count
-    await ctx.send("Tắt loop." if count == 0 else f"Loop {count} lần.")
-
-
-@bot.command(name="nowplaying", aliases=["np"])
-async def cmd_nowplaying(ctx):
-    if not is_allowed(ctx.author):
-        await ctx.reply(pick_perm_insult())
-        return
-    if not ctx.guild:
-        return
-    st = mstate(ctx.guild.id)
-    if not st["current"]:
-        await ctx.reply("Không có gì đang phát.")
-        return
-    t = st["current"]
-    e = discord.Embed(title="🎧  ĐANG PHÁT", color=ROYAL_GOLD)
-    e.add_field(name="Bài", value=t["title"][:100], inline=False)
-    e.add_field(name="Dài", value=fmt_dur(t.get("duration", 0)), inline=True)
-    if t.get("thumbnail"):
-        e.set_thumbnail(url=t["thumbnail"])
-    await ctx.send(embed=e)
-
-
-@bot.command(name="volume", aliases=["vol"])
-async def cmd_volume(ctx, value: str = None):
-    if not is_allowed(ctx.author):
-        await ctx.reply(pick_perm_insult())
-        return
-    if not ctx.guild:
-        return
-    st = mstate(ctx.guild.id)
-    if not value:
-        await ctx.reply(f"🔊 Volume: `{int(st.get('volume', 0.5) * 100)}%`")
-        return
-    v = value.lower().strip()
-    try:
-        if v.endswith("x"):
-            vol = float(v.rstrip("x").replace(",", "."))
-        else:
-            n = float(v.replace(",", ".").rstrip("%"))
-            vol = n / 100 if n > 3 else n
-        vol = max(0.0, min(3.0, vol))
-    except Exception:
-        await ctx.reply("Số sai. VD: `!volume 1.5` hoặc `!volume 150%`")
-        return
-    st["volume"] = vol
-    vc = ctx.voice_client
-    if vc and vc.source and hasattr(vc.source, "volume"):
-        try:
-            vc.source.volume = vol
-        except Exception:
-            pass
-    await ctx.send(f"🔊 Volume → `{int(vol * 100)}%`")
 
 
 # ============================================================
@@ -1092,6 +1261,12 @@ async def cmd_whispertest(ctx):
     except Exception as e:
         await st.edit(content=f"❌ Lỗi: `{str(e)[:200]}`")
 
+
+log.info("VOICE PART 1 v8.1 OK — Music SoundCloud + Voice TTS + VoiceChat")
+# ============================================================
+# voice_part2.py — Deobf + Obfuscate + Realtime + AI + Admin + Util
+# v8.1
+# ============================================================
 
 # ============================================================
 # DEOBF
@@ -2286,4 +2461,4 @@ async def cmd_ping(ctx):
     await ctx.send(embed=e)
 
 
-log.info("VOICE v7.2 OK — play_next FIXED + guard + retry limit")
+log.info("VOICE PART 2 v8.1 OK — Deobf + Realtime + AI + Admin + Util")
